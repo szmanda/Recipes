@@ -1,5 +1,7 @@
 package com.example.recipes
 
+import android.content.Context
+import android.database.Cursor
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
@@ -15,6 +17,11 @@ class ItemDetailHostActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        println("Created ItemDetailHostActivity");
+        val context: Context = getApplicationContext();
+        val dbHelper: RecipesDbHelper = RecipesDbHelper(context);
+        // dbHelper.import(context)
 
         val binding = ActivityItemDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)

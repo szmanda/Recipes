@@ -2,6 +2,7 @@ package com.example.recipes
 
 import android.content.ClipData
 import android.content.ClipDescription
+import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import android.view.KeyEvent
@@ -17,6 +18,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.recipes.placeholder.PlaceholderContent;
 import com.example.recipes.databinding.FragmentItemListBinding
 import com.example.recipes.databinding.ItemListContentBinding
+import java.io.IOException
+import java.io.InputStream
 
 /**
  * A Fragment representing a list of Pings. This fragment
@@ -29,7 +32,10 @@ import com.example.recipes.databinding.ItemListContentBinding
 
 class ItemListFragment : Fragment() {
 
-    /**
+    private var recipes: List<Recipe> = emptyList<Recipe>();
+    lateinit private var dbHelper: RecipesDbHelper;
+
+    /*
      * Method to intercept global key events in the
      * item list fragment to trigger keyboard shortcuts
      * Currently provides a toast when Ctrl + Z and Ctrl + F
@@ -66,6 +72,13 @@ class ItemListFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
 
+        val context: Context? = getActivity()?.getApplicationContext()
+        if (context != null) {
+            dbHelper = RecipesDbHelper(context);
+            println("Asking for recipes")
+            recipes = dbHelper.getRecipes()
+        }
+
         _binding = FragmentItemListBinding.inflate(inflater, container, false)
         return binding.root
 
@@ -91,12 +104,12 @@ class ItemListFragment : Fragment() {
     ) {
 
         recyclerView.adapter = SimpleItemRecyclerViewAdapter(
-            PlaceholderContent.ITEMS, itemDetailFragmentContainer
+            recipes, itemDetailFragmentContainer
         )
     }
 
     class SimpleItemRecyclerViewAdapter(
-        private val values: List<PlaceholderContent.PlaceholderItem>,
+        private val values: List<Recipe>,
         private val itemDetailFragmentContainer: View?
     ) :
         RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder>() {
@@ -110,18 +123,18 @@ class ItemListFragment : Fragment() {
         }
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-            val item = values[position]
-            holder.idView.text = item.id
-            holder.contentView.text = item.content
+            val item: Recipe = values[position]
+            holder.idView.text = item.id.toString()
+            holder.contentView.text = item.title
 
             with(holder.itemView) {
                 tag = item
                 setOnClickListener { itemView ->
-                    val item = itemView.tag as PlaceholderContent.PlaceholderItem
+                    val item = itemView.tag as Recipe
                     val bundle = Bundle()
                     bundle.putString(
                         ItemDetailFragment.ARG_ITEM_ID,
-                        item.id
+                        item.id.toString()
                     )
                     if (itemDetailFragmentContainer != null) {
                         itemDetailFragmentContainer.findNavController()
@@ -150,7 +163,7 @@ class ItemListFragment : Fragment() {
                 setOnLongClickListener { v ->
                     // Setting the item id as the clip data so that the drop target is able to
                     // identify the id of the content
-                    val clipItem = ClipData.Item(item.id)
+                    val clipItem = ClipData.Item(item.id.toString())
                     val dragData = ClipData(
                         v.tag as? CharSequence,
                         arrayOf(ClipDescription.MIMETYPE_TEXT_PLAIN),
