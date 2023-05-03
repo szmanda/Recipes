@@ -30,6 +30,7 @@ class ItemDetailFragment : Fragment() {
 
     lateinit var itemDetailTextView: TextView
     private var itemDetailIngredientsTextView: TextView? = null
+    private var itemDetailTitleTextView: TextView? = null
     private var toolbarLayout: CollapsingToolbarLayout? = null
 
     private var _binding: FragmentItemDetailBinding? = null
@@ -60,7 +61,7 @@ class ItemDetailFragment : Fragment() {
     }
 
     fun stringToArray(string: String) : List<String> {
-        return string.split(Regex("\\['|'\\.|', '"))
+        return string.split(Regex("\\['|'\\]|', '"))
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -69,7 +70,7 @@ class ItemDetailFragment : Fragment() {
         //supportLoaderManager.initLoader(0, null, this)
 
         arguments?.let {
-            if (it.containsKey(ARG_ITEM_ID) && it.getString(ARG_ITEM_ID) != null) {
+            if (it.containsKey(ARG_ITEM_ID) && it.getString(ARG_ITEM_ID) != null && it.getString(ARG_ITEM_ID) != "") {
                 item = getRecipe(it.getString(ARG_ITEM_ID)!!.toInt())
             }
         }
@@ -110,6 +111,7 @@ class ItemDetailFragment : Fragment() {
         toolbarLayout = binding.toolbarLayout
         itemDetailTextView = binding.itemDetail
         itemDetailIngredientsTextView = binding.itemDetailIngredients
+        itemDetailTitleTextView = binding.itemDetailTitle
 
         updateContent()
         rootView.setOnDragListener(dragListener)
@@ -124,6 +126,7 @@ class ItemDetailFragment : Fragment() {
         item?.let {
             itemDetailTextView.text = stringToArray(it.directions).joinToString("\n")
             itemDetailIngredientsTextView?.text = stringToArray(it.ingredients).joinToString("\n")
+            itemDetailTitleTextView?.text = item?.title
         }
     }
 

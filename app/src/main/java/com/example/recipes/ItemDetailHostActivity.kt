@@ -21,7 +21,7 @@ class ItemDetailHostActivity : AppCompatActivity() {
         println("Created ItemDetailHostActivity");
         val context: Context = getApplicationContext();
         val dbHelper: RecipesDbHelper = RecipesDbHelper(context);
-        // dbHelper.import(context)
+//        dbHelper.import(context)
 
         val binding = ActivityItemDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)

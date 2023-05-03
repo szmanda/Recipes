@@ -3,6 +3,7 @@ package com.example.recipes
 import android.content.Context
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
+import android.database.sqlite.SQLiteDatabase.CONFLICT_REPLACE
 import android.database.sqlite.SQLiteOpenHelper
 import androidx.appcompat.app.AppCompatActivity
 import java.io.IOException
@@ -31,7 +32,7 @@ class RecipesDbHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAM
         val reader = inputStream.bufferedReader()
         val header = reader.readLine()
         val list: List<Recipe> = reader.lineSequence().filter{ it.isNotBlank() }.map {
-            val (id, title, ingredients, directions) = it.split(";", ignoreCase = false, limit = 4)
+            val (id, title, ingredients, directions, remaining_fields) = it.split(";", ignoreCase = false, limit = 5)
             Recipe(
                 id.trim().toInt(),
                 title.trim().removeSurrounding("\""),
@@ -48,9 +49,14 @@ class RecipesDbHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAM
         val db = writableDatabase
         val recipes = readCsv(inputStream)
         recipes.forEach {
-
-            db.insert(RecipesDb.TABLE_NAME, null, it.toContentValues())
+            db.insertWithOnConflict(
+                RecipesDb.TABLE_NAME,
+                null,
+                it.toContentValues(),
+                CONFLICT_REPLACE
+            )
         }
+        inputStream.close()
         println("Imported recipes")
     }
     
@@ -108,7 +114,7 @@ class RecipesDbHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAM
     }
     companion object {
         // If you change the database schema, you must increment the database version.
-        const val DATABASE_VERSION = 1
+        const val DATABASE_VERSION = 2
         const val DATABASE_NAME = "Recipes.db"
     }
 }
