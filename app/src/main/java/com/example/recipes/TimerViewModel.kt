@@ -5,15 +5,14 @@
  import kotlinx.coroutines.flow.StateFlow
  import kotlinx.coroutines.flow.asStateFlow
  import kotlinx.coroutines.flow.update
- import java.time.Duration.between
  import java.time.LocalDateTime
  import java.time.Duration
- import java.time.Duration.ZERO
+ import java.time.Duration.*
 
  data class TimerUiState(
-     val remainingTime: Duration = Duration.ZERO,
+     val remainingTime: Duration = Duration.ofSeconds(10),
      val isRunning: Boolean = false,
-     val isSet: Boolean = false,
+     val isSet: Boolean = true,
      val lastUpdatedAt: LocalDateTime = LocalDateTime.now(),
  )
 

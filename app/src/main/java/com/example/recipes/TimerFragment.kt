@@ -1,5 +1,7 @@
 package com.example.recipes
 
+import android.animation.AnimatorSet
+import android.animation.ObjectAnimator
 import android.app.TimePickerDialog
 import android.content.Context
 import android.os.Bundle
@@ -8,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.TimePicker
 import androidx.core.content.ContextCompat.getSystemService
@@ -60,8 +63,11 @@ class TimerFragment : Fragment(R.layout.fragment_timer) {
         val startButton = view.findViewById<Button>(R.id.startButton)
         val stopButton = view.findViewById<Button>(R.id.stopButton)
         val resetButton = view.findViewById<Button>(R.id.resetButton)
+        val clockIcon = view.findViewById<ImageView>(R.id.timerIcon)
+        val clockAnimatorSet = getClockAnimatorSet(clockIcon)
         val vibrator = activity?.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
 
+        var animationCounter: Int = 0;
         timer.scheduleAtFixedRate(object : TimerTask() {
             override fun run() {
                 timerViewModel.updateTimer()
@@ -77,7 +83,13 @@ class TimerFragment : Fragment(R.layout.fragment_timer) {
                 }
                 // handle vibration
                 if (state.remainingTime == Duration.ZERO && state.isSet) {
-                    vibrator.vibrate(1000);
+                    vibrator.vibrate(500);
+                    if (animationCounter % 3 == 0) {
+                        activity?.runOnUiThread {
+                            clockAnimatorSet.start();
+                        }
+                    }
+                    animationCounter++
                 }
             }
         }, 0, 1000)
@@ -126,6 +138,20 @@ class TimerFragment : Fragment(R.layout.fragment_timer) {
 
 
         return view
+    }
+
+    fun getClockAnimatorSet(clockIcon: ImageView) : AnimatorSet {
+        val fadeIn = ObjectAnimator.ofFloat(clockIcon, "alpha", 0f, 1f)
+        fadeIn.duration = 500
+        val rotate = ObjectAnimator.ofFloat(clockIcon, "rotation", 0f, 360f)
+        rotate.duration = 1500
+        val fadeOut = ObjectAnimator.ofFloat(clockIcon, "alpha", 1f, 0f)
+        fadeOut.duration = 500
+        val animatorSet = AnimatorSet().apply {
+            play(fadeIn).before(rotate)
+            play(fadeOut).after(rotate)
+        }
+        return animatorSet;
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
