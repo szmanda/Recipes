@@ -2,17 +2,17 @@ package com.example.recipes
 
 import android.content.ClipData
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.DragEvent
-import androidx.fragment.app.Fragment
-import com.google.android.material.appbar.CollapsingToolbarLayout
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import com.example.recipes.placeholder.PlaceholderContent
-import com.example.recipes.RecipeLoader
+import androidx.fragment.app.Fragment
 import com.example.recipes.databinding.FragmentItemDetailBinding
+import com.google.android.material.appbar.CollapsingToolbarLayout
+
 
 /**
  * A fragment representing a single Item detail screen.
@@ -115,6 +115,21 @@ class ItemDetailFragment : Fragment() {
 
         updateContent()
         rootView.setOnDragListener(dragListener)
+
+        // FAB listener
+        binding.fab.setOnClickListener(
+            View.OnClickListener { // Create a sharing intent
+                val sharingIntent = Intent(Intent.ACTION_SEND)
+                sharingIntent.type = "text/plain"
+                sharingIntent.putExtra(Intent.EXTRA_SUBJECT, "Check out this recipe!")
+                sharingIntent.putExtra(Intent.EXTRA_TEXT, item?.title)
+
+                // Start the intent chooser
+                startActivity(Intent.createChooser(sharingIntent, "Share via"))
+            }
+        )
+        //setOn
+
 
         return rootView
     }
